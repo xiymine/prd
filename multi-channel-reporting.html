@@ -172,6 +172,28 @@
       color: #606266;
     }
 
+    .time-display {
+      display: inline-block;
+      padding: 6px 10px;
+      background: #F5F7FA;
+      border: 1px solid #DCDFE6;
+      border-radius: 4px;
+      font-size: 12px;
+      color: #606266;
+      max-width: 250px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+
+    .time-display:hover {
+      background: #E6F4FF;
+      border-color: #409EFF;
+      color: #409EFF;
+    }
+
     .radio-group {
       display: flex;
       gap: 20px;
@@ -238,11 +260,6 @@
       white-space: nowrap;
     }
 
-    .channel-table th.highlight {
-      background: #E6F4FF;
-      color: #409EFF;
-    }
-
     .channel-table td {
       padding: 12px 8px;
       font-size: 13px;
@@ -253,10 +270,6 @@
 
     .channel-table tbody tr:hover {
       background: #F5F7FA;
-    }
-
-    .channel-table tbody tr.highlight-row td.highlight {
-      background: #F0F9FF;
     }
 
     .table-input {
@@ -387,18 +400,6 @@
     .add-icon {
       font-size: 18px;
       font-weight: bold;
-    }
-
-    .new-badge {
-      display: inline-block;
-      background: #67C23A;
-      color: white;
-      font-size: 10px;
-      padding: 2px 5px;
-      border-radius: 2px;
-      margin-left: 4px;
-      font-weight: bold;
-      vertical-align: middle;
     }
 
     .btn-group {
@@ -694,7 +695,7 @@
         <div class="main-card">
           <!-- 提示信息 -->
           <div class="demo-notice">
-            <strong>💡 设计说明：</strong>"任务执行频次"是规则级配置，影响所有渠道。每个渠道可单独配置重复上报次数和动态间隔时间。
+            <strong>💡 设计说明：</strong>"任务执行频次"和"点击比例策略"是规则级配置，影响所有渠道。每个渠道可单独配置点击比例、重复上报次数和动态间隔时间。
           </div>
 
           <!-- 标签规则管理 -->
@@ -739,7 +740,7 @@
                 </label>
               </div>
               <span style="margin-left: 15px; font-size: 13px; color: #909399;">
-                此配置应用于所有渠道
+                此配置应用于所有渠道号
               </span>
             </div>
           </div>
@@ -755,12 +756,34 @@
             </div>
           </div>
 
+          <!-- 点击比例策略 - 规则级配置 -->
+          <div class="form-item">
+            <div class="form-label required">
+              点击比例策略
+            </div>
+            <div class="form-content">
+              <div class="radio-group">
+                <label class="radio-label">
+                  <input type="radio" name="clickRateStrategy" value="independent" checked>
+                  <span>允许重复</span>
+                </label>
+                <label class="radio-label">
+                  <input type="radio" name="clickRateStrategy" value="exclusive">
+                  <span>互斥去重</span>
+                </label>
+              </div>
+              <span style="margin-left: 15px; font-size: 13px; color: #909399; cursor: help;" title="允许重复：各渠道号独立按点击比例筛选，同一用户可能被多个渠道号上报&#10;互斥去重：多渠道号间互斥，同一用户只能被一个渠道号上报">
+                ⓘ 设置多渠道号点击比例的取数逻辑
+              </span>
+            </div>
+          </div>
+
           <!-- 配置上报规则 -->
           <div class="channel-config-section">
             <div class="section-title">
-              配置上报规则（渠道维度）
+              配置上报规则（渠道号维度）
               <span style="color: #909399; font-size: 13px; font-weight: normal; margin-left: 10px;">
-                （已配置 <span style="color: #409EFF; font-weight: bold;" id="channelCount">2</span> 个渠道）
+                （已配置 <span style="color: #409EFF; font-weight: bold;" id="channelCount">2</span> 个渠道号）
               </span>
             </div>
 
@@ -772,21 +795,19 @@
                     <th class="col-channel">渠道号</th>
                     <th class="col-status">生效状态</th>
                     <th class="col-click-rate">点击比例</th>
-                    <th class="col-repeat highlight">
+                    <th class="col-repeat">
                       重复上报次数
-                      <span class="new-badge">NEW</span>
                     </th>
-                    <th class="col-interval highlight">
+                    <th class="col-interval">
                       上报间隔配置
-                      <span class="new-badge">NEW</span>
                     </th>
-                    <th class="col-time">上报时间</th>
+                    <th class="col-time">上报时段</th>
                     <th class="col-actions">操作</th>
                   </tr>
                 </thead>
                 <tbody id="channelTableBody">
                   <!-- 渠道1 -->
-                  <tr class="highlight-row" data-intervals='[{"value":10,"unit":"second"},{"value":20,"unit":"second"}]'>
+                  <tr data-intervals='[{"value":10,"unit":"second"},{"value":20,"unit":"second"}]'>
                     <td class="col-no">1</td>
                     <td class="col-channel">
                       <select class="table-select">
@@ -805,11 +826,11 @@
                       <input type="number" class="table-number" value="30" min="0" max="100" step="1" />
                       <span style="margin-left: 4px; font-size: 12px; color: #909399;">%</span>
                     </td>
-                    <td class="col-repeat highlight">
+                    <td class="col-repeat">
                       <input type="number" class="table-number repeat-count" value="3" min="1" max="100" onchange="updateIntervalConfig(this)" />
                       <span style="margin-left: 4px; font-size: 12px; color: #909399;">次</span>
                     </td>
-                    <td class="col-interval highlight">
+                    <td class="col-interval">
                       <div class="interval-summary">
                         <div class="interval-summary-text">1→2: 10秒</div>
                         <div class="interval-summary-text">2→3: 20秒</div>
@@ -819,7 +840,7 @@
                       </div>
                     </td>
                     <td class="col-time">
-                      <input type="text" class="table-input" value="2024-01-01 00:00:00" placeholder="选择时间" />
+                      <span class="time-display" onclick="editTimeHours(this)" title="点击编辑上报时段">0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23</span>
                     </td>
                     <td class="col-actions">
                       <button class="delete-btn" onclick="deleteRow(this)" title="删除">✕</button>
@@ -827,7 +848,7 @@
                   </tr>
 
                   <!-- 渠道2 -->
-                  <tr class="highlight-row" data-intervals='[{"value":5,"unit":"minute"},{"value":10,"unit":"minute"},{"value":15,"unit":"minute"},{"value":20,"unit":"minute"}]'>
+                  <tr data-intervals='[{"value":5,"unit":"minute"},{"value":10,"unit":"minute"},{"value":15,"unit":"minute"},{"value":20,"unit":"minute"}]'>
                     <td class="col-no">2</td>
                     <td class="col-channel">
                       <select class="table-select">
@@ -846,11 +867,11 @@
                       <input type="number" class="table-number" value="50" min="0" max="100" step="1" />
                       <span style="margin-left: 4px; font-size: 12px; color: #909399;">%</span>
                     </td>
-                    <td class="col-repeat highlight">
+                    <td class="col-repeat">
                       <input type="number" class="table-number repeat-count" value="5" min="1" max="100" onchange="updateIntervalConfig(this)" />
                       <span style="margin-left: 4px; font-size: 12px; color: #909399;">次</span>
                     </td>
-                    <td class="col-interval highlight">
+                    <td class="col-interval">
                       <div class="interval-summary">
                         <div class="interval-summary-text">1→2: 5分钟</div>
                         <div class="interval-summary-text">2→3: 10分钟</div>
@@ -862,7 +883,7 @@
                       </div>
                     </td>
                     <td class="col-time">
-                      <input type="text" class="table-input" value="2024-01-01 08:00:00" placeholder="选择时间" />
+                      <span class="time-display" onclick="editTimeHours(this)" title="点击编辑上报时段">0,2,4,6,8,10,12,14,16,18,20,22</span>
                     </td>
                     <td class="col-actions">
                       <button class="delete-btn" onclick="deleteRow(this)" title="删除">✕</button>
@@ -872,10 +893,10 @@
               </table>
             </div>
 
-            <!-- 新增渠道按钮 -->
+            <!-- 新增渠道号按钮 -->
             <button class="add-channel-btn" onclick="addChannel()">
               <span class="add-icon">+</span>
-              <span>新增渠道配置</span>
+              <span>新增渠道号配置</span>
             </button>
           </div>
 
@@ -923,7 +944,7 @@
 
     // 删除行
     function deleteRow(btn) {
-      if (confirm('确定要删除这个渠道配置吗？')) {
+      if (confirm('确定要删除这个渠道号配置吗？')) {
         const row = btn.closest('tr');
         row.style.opacity = '0';
         setTimeout(() => {
@@ -933,13 +954,12 @@
       }
     }
 
-    // 新增渠道
+    // 新增渠道号
     function addChannel() {
       channelIndex++;
       const tbody = document.getElementById('channelTableBody');
 
       const newRow = document.createElement('tr');
-      newRow.className = 'highlight-row';
       newRow.setAttribute('data-intervals', '[{"value":5,"unit":"minute"}]');
       newRow.style.opacity = '0';
 
@@ -963,11 +983,11 @@
           <input type="number" class="table-number" value="0" min="0" max="100" step="1" />
           <span style="margin-left: 4px; font-size: 12px; color: #909399;">%</span>
         </td>
-        <td class="col-repeat highlight">
+        <td class="col-repeat">
           <input type="number" class="table-number repeat-count" value="2" min="1" max="100" onchange="updateIntervalConfig(this)" />
           <span style="margin-left: 4px; font-size: 12px; color: #909399;">次</span>
         </td>
-        <td class="col-interval highlight">
+        <td class="col-interval">
           <div class="interval-summary">
             <div class="interval-summary-text">1→2: 5分钟</div>
             <div style="margin-top: 4px;">
@@ -976,7 +996,7 @@
           </div>
         </td>
         <td class="col-time">
-          <input type="text" class="table-input" value="" placeholder="选择时间" />
+          <span class="time-display" onclick="editTimeHours(this)" title="点击编辑上报时段">0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23</span>
         </td>
         <td class="col-actions">
           <button class="delete-btn" onclick="deleteRow(this)" title="删除">✕</button>
@@ -1001,6 +1021,12 @@
       });
       document.getElementById('channelCount').textContent = rows.length;
       channelIndex = rows.length;
+    }
+
+    // 编辑上报时段
+    function editTimeHours(span) {
+      alert('点击编辑上报时段\n\n这里可以弹出时段选择器，让用户选择0-23小时的时段');
+      // TODO: 实现时段选择器弹窗
     }
 
     // 当重复次数改变时，更新间隔配置
@@ -1167,10 +1193,11 @@
       timeline.innerHTML = html;
     }
 
-    // ��交表单
+    // 提交表单
     function submitForm() {
       // 获取规则级配置
       const globalFrequency = document.querySelector('input[name="globalFrequency"]:checked').value;
+      const clickRateStrategy = document.querySelector('input[name="clickRateStrategy"]:checked').value;
 
       const channels = [];
       const rows = document.querySelectorAll('#channelTableBody tr');
@@ -1187,7 +1214,7 @@
           clickRate: clickRate,
           repeatCount: row.querySelector('.repeat-count').value,
           intervals: intervals,
-          reportTime: row.querySelector('.table-input').value,
+          reportHours: row.querySelector('.col-time .time-display').textContent,
         };
         channels.push(channelData);
       });
@@ -1195,19 +1222,22 @@
       const formData = {
         ruleName: document.querySelector('.form-input').value,
         executionFrequency: globalFrequency,  // 规则级配置
+        clickRateStrategy: clickRateStrategy,  // 规则级配置：点击比例策略
         channels: channels
       };
 
       console.log('提交的配置数据：', formData);
 
       const freqText = globalFrequency === 'daily' ? '每日' : '仅一次';
+      const strategyText = clickRateStrategy === 'independent' ? '允许重复（各渠道号独立筛选）' : '互斥去重（同一用户只能被一个渠道上报）';
       let summary = `规则配置：\n`;
       summary += `规则名称：${formData.ruleName}\n`;
-      summary += `任务执行频次：${freqText}（应用于所有渠道）\n\n`;
-      summary += `渠道配置（${channels.length}个）：\n\n`;
+      summary += `任务执行频次：${freqText}（应用于所有渠道号）\n`;
+      summary += `点击比例策略：${strategyText}\n\n`;
+      summary += `渠道号配置（${channels.length}个）：\n\n`;
 
       channels.forEach(ch => {
-        summary += `渠道 ${ch.index}：${ch.channel}\n`;
+        summary += `渠道号 ${ch.index}：${ch.channel}\n`;
         summary += `  状态：${ch.isActive ? '开启' : '关闭'}\n`;
         summary += `  点击比例：${ch.clickRate}%\n`;
         summary += `  重复上报：${ch.repeatCount}次\n`;
@@ -1216,7 +1246,7 @@
           const unitMap = {'second': '秒', 'minute': '分钟', 'hour': '小时', 'day': '天'};
           summary += `    第${idx + 1}→${idx + 2}次: ${interval.value}${unitMap[interval.unit]}\n`;
         });
-        summary += `  上报时间：${ch.reportTime}\n\n`;
+        summary += `  上报时段：${ch.reportHours}\n\n`;
       });
 
       alert(summary + '点击确定将提交到后端保存');
